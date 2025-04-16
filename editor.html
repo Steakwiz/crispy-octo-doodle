@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Editor</title>
+    <style>
+        body {
+            display: flex;
+            align-items: flex-start;
+            font-family: Arial, sans-serif;
+            background-color: #212121;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-right: 20px;
+            background-image: url("image564462568l.png");
+            background-size: 25vh;
+            background-size: 25vw;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+        
+        #canvas {
+            display: grid;
+            grid-template-columns: repeat(16, 20px);
+            grid-template-rows: repeat(16, 20px); 
+            gap: 1px;
+            margin-bottom: 20px;
+            user-select: none;
+            
+            
+        }
+        .pixel {
+            width: 20px;
+            height: 20px;
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tool {
+            cursor: pointer;
+            padding: 5px 10px;
+
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+        .active {
+            background-color: #414141;
+        }
+        .applySize {
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+        .Range {
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+        .Clear {
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+        .saveButton {
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+        .colorc {
+            color: white;
+            border: 1px solid #5f5e5e;
+            background-color: #292929;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <input type="number" class="Range" placeholder="25" min="1" max="100" value="16">
+        <button id="applySize" class="applySize">Применить размер</button>
+        <input class="colorc" type="color" id="colorPicker" value="#000000">
+        <button id="DESTROYER" class="Clear">Очистить</button>
+        <button id="saveButton" class="saveButton">Сохранить как PNG</button>
+        <input type="file" id="upload" class="upload" accept="image/png">
+        <div class="tool active" id="brush">Кисть</div>
+        <div class="tool" id="eraser">Ластик</div>
+        <div class="tool" id="loopa">Лупа</div>
+        <div class="tool" id="filler">Заливка</div>
+        <div class="tool", id="line">Линия</div>
+        <div class="tool", id="square">Квадрат</div>
+       
+    </div>
+    <div id="canvas"></div>
+
+
+    <script>
+        let canvas = document.getElementById('canvas');
+        let colorPicker = document.getElementById('colorPicker');
+        let cb = document.getElementById("DESTROYER");
+        let azb = document.getElementById("applySize");
+        let Sb = document.getElementById("saveButton");
+        let ui = document.getElementById("upload");
+        let bt = document.getElementById("brush");
+        let et = document.getElementById("eraser");
+        let lt = document.getElementById("loopa");
+        let ft = document.getElementById("filler");
+        let lp = document.getElementById("line");
+        let sq = document.getElementById("square");
+        let isDrawing = false;
+        let currentTool = 'brush'; 
+        let rangeInput = document.querySelector(".Range");
+        let positionA;
+        let PositionB;
+
+        let position2A;
+        let Position2B;
+        function createCanvas(size) {
+            canvas.innerHTML = "";
+            canvas.style.gridTemplateColumns = `repeat(${size}, 20px)`;
+            canvas.style.gridTemplateRows = `repeat(${size}, 20px)`;
+
+            for (let i = 0; i < size * size; i++) {
+                let pixel = document.createElement('div');
+                pixel.className = 'pixel';
+
+                pixel.addEventListener('click', function() {
+                    if (currentTool === 'brush') {
+                        
+                        pixel.style.backgroundColor = colorPicker.value;
+                    } else if (currentTool === 'eraser') {
+                        pixel.style.backgroundColor = "white";
+                    } else if (currentTool === 'loopa') {
+                        canvas.width = "36600px";
+                        canvas.height = "66600px";
+                    } else if (currentTool == "filler") {
+                       
+                        const pixels = canvas.querySelectorAll(".pixel");
+                        pixels.forEach(function(pixel) {
+                            pixel.style.backgroundColor = colorPicker.value;
+                        });
+                    }
+                });
+
+                pixel.addEventListener('mousedown', function(ms) {
+                    isDrawing = true;
+                    console.log("LOL2")
+                    if (currentTool === 'brush') {
+                        pixel.style.backgroundColor = colorPicker.value;
+                    } else if (currentTool === 'eraser') {
+                        pixel.style.backgroundColor = "white";
+
+                    } else if (currentTool==="line") {
+                        positionA = ms.clientX - pixel.getBoundingClientRect().left;
+                        PositionB = ms.clientY - pixel.getBoundingClientRect().top;
+
+                        
+                    }else if (currentTool==="square") {
+                        positionA = ms.clientX - pixel.getBoundingClientRect().left;
+                        PositionB = ms.clientY - pixel.getBoundingClientRect().top;
+                    };
+                });
+
+                pixel.addEventListener('mouseup', function(ms) {
+                    isDrawing = false;
+
+
+                    if (currentTool === "line") {
+                        console.log("LOL")
+                        position2A = ms.clientX - pixel.getBoundingClientRect().left;
+                        Position2B = ms.clientY - pixel.getBoundingClientRect().top;
+                        console.log(positionA)
+                        console.log(PositionB)
+                        console.log(position2A)
+                        console.log(Position2B)
+                        const pixels = canvas.querySelectorAll(".pixel");
+                        pixels.forEach(function(pixel) {
+                            console.log("ICHES")
+                            if (pixel.getBoundingClientRect.left == position2A) {
+                                console.log("WOW")
+                                pixel.style.backgroundColor = colorPicker.value;
+                            }
+                            if (pixel.getBoundingClientRect.top == Position2B) {
+                                pixel.style.backgroundColor = colorPicker.value;
+                            };
+                        })
+                    } else if (currentTool === "square") {
+                        position2A = ms.clientX- pixel.getBoundingClientRect().left;
+                        Position2B = ms.clientY - pixel.getBoundingClientRect().top;
+
+
+
+                    };
+                });
+
+                pixel.addEventListener('mouseover', function() {
+                    if (isDrawing) {
+                        if (currentTool === 'brush') {
+                            pixel.style.backgroundColor = colorPicker.value;
+                        } else if (currentTool === 'eraser') {
+                            pixel.style.backgroundColor = "white";
+                        }
+                    }
+                });
+
+                canvas.appendChild(pixel);
+            }
+        }
+
+        createCanvas(16);
+
+        canvas.addEventListener('mouseleave', function() {
+            isDrawing = false;
+        });
+        lp.addEventListener("click", function() {
+            currentTool = "line"
+            setActiveTool(lp);
+        })
+        sq.addEventListener("click", function() {
+            currentTool = "square"
+            setActiveTool(sq);
+        })
+        cb.addEventListener("click", function() {
+            
+            const pixels = canvas.querySelectorAll(".pixel");
+            pixels.forEach(function(pixel) {
+                pixel.style.backgroundColor = "white";
+            });
+        });
+        ft.addEventListener("click",function() {
+            currentTool = 'filler';
+            setActiveTool(ft);
+        })
+        azb.addEventListener('click', function() {
+            let size = Math.max(1, Math.min(100, rangeInput.value));
+            createCanvas(size);
+        });
+
+        bt.addEventListener('click', function() {
+            currentTool = 'brush';
+            setActiveTool(bt);
+        });
+
+        et.addEventListener('click', function() {
+            currentTool = 'eraser';
+            setActiveTool(et);
+        });
+
+        lt.addEventListener('click', function() {
+            currentTool = 'loopa';
+            setActiveTool(lt);
+        });
+
+        Sb.addEventListener('click', function() {
+            const size = canvas.childElementCount;
+            const gridSize = Math.sqrt(size);
+            const pixelSize = 20;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = gridSize * pixelSize;
+            tempCanvas.height = gridSize * pixelSize;
+            const ctx = tempCanvas.getContext('2d');
+
+            const pixels = canvas.querySelectorAll(".pixel");
+            pixels.forEach((pixel, index) => {
+                const x = (index % gridSize) * pixelSize;
+                const y = Math.floor(index / gridSize) * pixelSize;
+                ctx.fillStyle = pixel.style.backgroundColor || "white";
+                ctx.fillRect(x, y, pixelSize, pixelSize);
+            });
+
+            const link = document.createElement('a');
+            link.download = 'pixel_art.png';
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        });
+
+        ui.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const size = Math.min(img.width, img.height, 64);
+                    createCanvas(size);
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = size;
+                    tempCanvas.height = size;
+                    const ctx = tempCanvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, size, size);
+                    const imageData = ctx.getImageData(0, 0, size, size).data;
+
+                    const pixels = canvas.querySelectorAll(".pixel");
+                    for (let y = 0; y < size; y++) {
+                        for (let x = 0; x < size; x++) {
+                            const pixelIndex = (y * size + x) * 4;
+                            const r = imageData[pixelIndex];
+                            const g = imageData[pixelIndex + 1];
+                            const b = imageData[pixelIndex + 2];
+                            const a = imageData[pixelIndex + 3];
+
+                            const pixel = pixels[y * size + x];
+                            pixel.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+                        }
+                    }
+                    
+                }
+            }
+            reader.readAsDataURL(file);
+        });
+        
+
+        function setActiveTool(selectedTool) {
+            const tools = document.querySelectorAll('.tool');
+            tools.forEach(tool => {
+                tool.classList.remove('active');
+            });
+            selectedTool.classList.add('active');
+        }
+    </script>
+</body>
+</html>
